@@ -120,9 +120,9 @@ def format_prompt(feature_name, spec, context=None):
         * Include guidance on how to test the implementation (e.g., "ensure validation for empty input", "verify correct error response when API is unavailable").
         * Focus on *instructing* the LLM on the change, **do not provide the full code implementation** yourself within the step's instruction prompt.
 
-    Output each prompt to a separate markdown file in the `specs/tasks/[[feature-name]]` directory. Each file should be named after the step number and a brief description of the task (ex. `01-create-user-model.md`, `02-implement-authentication.md`, etc.).
+    Output each prompt to a separate markdown file in the `specs/tasks/{feature_name}` directory. Each file should be named after the step number and a brief description of the task (ex. `01-create-user-model.md`, `02-implement-authentication.md`, etc.).
 
-    Generate a todo list containing all of the prompts in the `specs/tasks/[[feature-name]]` directory. Output the todo list to a file in the `specs/tasks/[[feature-name]]` directory named `todo.md`. Include:
+    Generate a todo list containing all of the prompts in the `specs/tasks/{feature_name}` directory. Output the todo list to a file in the `specs/tasks/{feature_name}` directory named `todo.md`. Include:
     1. Estimated complexity (Low/Medium/High) for each task
     2. A clear marking of which files will be modified by each task
     3. A section at the top titled "READ-ONLY FILES" that lists all files that must never be modified
