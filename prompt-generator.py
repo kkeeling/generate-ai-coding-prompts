@@ -41,7 +41,6 @@ def format_prompt(feature_name, spec, context=None):
     - Well-defined with clear inputs and outputs
     - Properly ordered with dependencies managed
     - Consistently sized (avoid mixing very small and very large tasks)
-    - **CRITICAL**: Each chunk must be verified against the READ-ONLY FILES list to ensure it doesn't modify read-only files
 
     4. **Prompt Generation**: Transform each chunk into a precise prompt for a code-generation LLM that:
     - Clearly states what to implement
@@ -50,7 +49,6 @@ def format_prompt(feature_name, spec, context=None):
     - Includes guidance on testing
     - Makes all necessary context explicit
     - Builds on previous steps while maintaining cohesion
-    - **CRITICAL**: Double-check each prompt against the READ-ONLY FILES list
 
     5. **Quality Verification**: Review all prompts to ensure they:
     - Follow best practices for the target language/framework
@@ -59,7 +57,6 @@ def format_prompt(feature_name, spec, context=None):
     - Address potential edge cases and errors
     - Create no orphaned or disconnected code
     - Lead to a complete, working implementation
-    - **CRITICAL**: Perform a final verification that absolutely no steps modify any read-only files
 
     ## Inputs You Will Receive:
 
@@ -89,7 +86,10 @@ def format_prompt(feature_name, spec, context=None):
     - **Testing Strategy:** Approach for verifying implementation (unit tests, integration tests, etc.)
     - **Error Handling:** Expected errors and how they should be managed
 
-    5. **Context:**
+    5. **Relevant Documentation:**
+    - **Documentation:** A list of relevant 3rd party urls to documentation online that are relevant to the task.
+
+    6. **Context:**
     * **Beginning Context:** A list of relevant relative file paths that exist *before* the task begins.
         * Suffix read-only files (those that should *not* be modified by the task) with `(read-only)`. **Files marked `(read-only)` here must NEVER be edited, modified, updated, or changed in any way during the task.**
         * List *only* files, not directories.
@@ -110,7 +110,6 @@ def format_prompt(feature_name, spec, context=None):
     * **For each step, provide a clear, concise instruction prompt suitable for a code-generation LLM.** This prompt should:
         * Start with a clear action keyword indicating the primary operation (e.g., `CREATE`, `UPDATE`, `ADD`, `REMOVE`, `REFACTOR`, `MODIFY`, `IMPLEMENT`, `DELETE`, `TEST`).
         * Specify the target file path (relative path).
-        * **CRITICAL CONSTRAINT:** Before writing any step, verify that it does not involve modifying read-only files. Steps involving modification actions (e.g., `UPDATE`, `MODIFY`, `ADD`, `REMOVE`, `DELETE`, `REFACTOR`) **MUST NEVER** target files marked as `(read-only)` in the Beginning Context. Always check against your READ-ONLY FILES list before writing a step.
         * All modification operations (e.g., `UPDATE`, `MODIFY`, `ADD`, `REMOVE`, `DELETE`, `REFACTOR`) must only be applied to files that:
             1. Already exist and are not marked as read-only, OR
             2. Will be created as new files during this task
@@ -123,10 +122,9 @@ def format_prompt(feature_name, spec, context=None):
     Output each prompt to a separate markdown file in the `specs/tasks/{feature_name}` directory. Each file should be named after the step number and a brief description of the task (ex. `01-create-user-model.md`, `02-implement-authentication.md`, etc.).
 
     Generate a todo list containing all of the prompts in the `specs/tasks/{feature_name}` directory. Output the todo list to a file in the `specs/tasks/{feature_name}` directory named `todo.md`. Include:
-    1. Estimated complexity (Low/Medium/High) for each task
-    2. A clear marking of which files will be modified by each task
-    3. A section at the top titled "READ-ONLY FILES" that lists all files that must never be modified
-    4. A final verification checklist that confirms no tasks modify read-only files
+    1. Task Name
+    2. Relative path to the prompt file (ex. `specs/tasks/feature-name/01-create-user-model.md`)
+    3. Estimated complexity (Low/Medium/High) for each task
 
     ## Core Principles & Guidelines:
 
@@ -136,15 +134,11 @@ def format_prompt(feature_name, spec, context=None):
 
     3. **Atomicity:** Break down the overall task into the smallest logical, independent steps possible, suitable for test-driven implementation. Each step should be independently testable.
 
-    4. **Context Accuracy:** Ensure the Beginning and Ending Context accurately reflect the files relevant to the task and their modification status (read-only, new). Use relative paths consistently. Adhere strictly to the read-only constraints.
+    4. **Context Accuracy:** Ensure the Beginning and Ending Context accurately reflect the files relevant to the task and their modification status (read-only, new). Use relative paths consistently.
 
-    5. **Respect Read-Only Files:** 
-    * NEVER generate steps that instruct modification of files designated as `(read-only)` in the beginning context. 
-    * READ-ONLY means ABSOLUTELY NO CHANGES - no updates, no modifications, no additions, no deletions, no refactoring.
-    * These files must remain completely unchanged throughout the task.
-    * Before finalizing each step, explicitly verify it does not modify any read-only file by checking against your READ-ONLY FILES list.
-    * After completing all steps, perform a final verification pass to ensure no read-only files are modified.
-    * If a step appears to require modifying a read-only file, rethink the approach entirely - create a new file, use a different pattern, or find another solution that doesn't modify read-only content.
+    5. **Ensure All Prompts Have Complexity Lower Than High:** 
+    * The prompts should be simple and easy to understand.
+    * If a prompt has a complexity of high, it should be split into multiple prompts.
 
     6. **Instruction Focus:** The Detailed Steps should contain *prompts* instructing the code-generation LLM, not the implementation code itself.
 
@@ -165,14 +159,6 @@ def format_prompt(feature_name, spec, context=None):
     14. **Implementation-Agnostic:** Focus on describing what needs to be done rather than dictating exactly how it should be implemented. Allow the code-generation LLM some flexibility within constraints.
 
     15. **Dependency Awareness:** Ensure that step dependencies are clear and that steps are ordered to minimize conflicts and integration issues.
-
-    16. **Read-Only Protection:** Implement a multi-level verification system to ensure read-only files are never modified:
-        - Create and maintain a prominent READ-ONLY FILES list from the beginning
-        - Verify each architectural decision against this list
-        - Check each decomposed chunk against this list
-        - Verify each prompt against this list before finalizing
-        - Perform a final verification pass across all prompts
-        - If a modification to a read-only file seems necessary, completely rethink the approach
                                                               
     ## Project/Feature Specification:
 
